@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+// import 'package:google_fonts/google_fonts.dart';
 import 'design_tokens.dart';
 
 class AppTheme {
@@ -74,20 +74,38 @@ class AppTheme {
       surfaceTint: surfaceTint,
     );
 
-    final textTheme = GoogleFonts.interTextTheme().copyWith(
-      headlineLarge: GoogleFonts.inter(
+    // final textTheme = GoogleFonts.interTextTheme().copyWith(
+    //   headlineLarge: GoogleFonts.inter(
+    //     fontSize: 32, fontWeight: FontWeight.w600, height: 40 / 32, color: onSurface,
+    //   ),
+    //   headlineMedium: GoogleFonts.inter(
+    //     fontSize: 24, fontWeight: FontWeight.w600, height: 32 / 24, color: onSurface,
+    //   ),
+    //   bodyLarge: GoogleFonts.inter(
+    //     fontSize: 16, fontWeight: FontWeight.w400, height: 24 / 16, color: onSurface,
+    //   ),
+    //   bodyMedium: GoogleFonts.inter(
+    //     fontSize: 14, fontWeight: FontWeight.w400, height: 20 / 14, color: onSurfaceVariant,
+    //   ),
+    //   labelMedium: GoogleFonts.inter(
+    //     fontSize: 12, fontWeight: FontWeight.w500, height: 16 / 12, color: onSurfaceVariant,
+    //   ),
+    // );
+
+    final textTheme = const TextTheme(
+      headlineLarge: TextStyle(
         fontSize: 32, fontWeight: FontWeight.w600, height: 40 / 32, color: onSurface,
       ),
-      headlineMedium: GoogleFonts.inter(
+      headlineMedium: TextStyle(
         fontSize: 24, fontWeight: FontWeight.w600, height: 32 / 24, color: onSurface,
       ),
-      bodyLarge: GoogleFonts.inter(
+      bodyLarge: TextStyle(
         fontSize: 16, fontWeight: FontWeight.w400, height: 24 / 16, color: onSurface,
       ),
-      bodyMedium: GoogleFonts.inter(
+      bodyMedium: TextStyle(
         fontSize: 14, fontWeight: FontWeight.w400, height: 20 / 14, color: onSurfaceVariant,
       ),
-      labelMedium: GoogleFonts.inter(
+      labelMedium: TextStyle(
         fontSize: 12, fontWeight: FontWeight.w500, height: 16 / 12, color: onSurfaceVariant,
       ),
     );

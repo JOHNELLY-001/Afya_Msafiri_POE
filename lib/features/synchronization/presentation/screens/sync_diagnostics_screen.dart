@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+// import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../app/design_tokens.dart';
 import '../../../../app/config.dart';
@@ -26,13 +26,14 @@ class SyncDiagnosticsScreen extends ConsumerWidget {
           const Divider(height: AppSpacing.lg),
           _row(context, 'Data Mode', AppConfig.useMockData ? 'Mock Data (development)' : 'Live AfyaMsafiri API'),
           const Divider(height: AppSpacing.lg),
-          FutureBuilder<PackageInfo>(
-            future: PackageInfo.fromPlatform(),
-            builder: (context, snapshot) {
-              final info = snapshot.data;
-              return _row(context, 'App Version', info != null ? '${info.version} (${info.buildNumber})' : '—');
-            },
-          ),
+          // FutureBuilder<PackageInfo>(
+          //   future: PackageInfo.fromPlatform(),
+          //   builder: (context, snapshot) {
+          //     final info = snapshot.data;
+          //     return _row(context, 'App Version', info != null ? '${info.version} (${info.buildNumber})' : '—');
+          //   },
+          // ),
+          _row(context, 'App Version', '1.1.0 build(1)'),
         ],
       ),
     );
