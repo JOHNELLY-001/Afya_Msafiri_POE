@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/config.dart';
 import '../models/officer.dart';
 import '../models/point_of_entry.dart';
 import '../../features/authentication/data/repositories/auth_repository.dart';
+import '../../features/authentication/data/repositories/d2touch_auth_repository.dart';
+import 'd2touch_provider.dart';
 
 class SessionState {
   final bool isLoggedIn;
@@ -50,26 +53,31 @@ class SessionNotifier extends Notifier<SessionState> {
   }) async {
     state = state.copyWith(loading: true, error: null);
 
-    final authRepository = ref.read(authRepositoryProvider);
-    final officer = await authRepository.login(
-      username: username,
-      password: password,
-    );
-
-    if (officer == null) {
-      state = state.copyWith(
-        loading: false,
-        error: 'Please enter your username and password.',
-      );
-      return false;
+    if (AppConfig.useMockData) {
+      final authRepository = ref.read(authRepositoryProvider);
+      final officer = await authRepository.login(username: username, password: password);
+      if (officer == null) {
+        state = state.copyWith(loading: false, error: 'Please enter your username and password.');
+        return false;
+      }
+      state = state.copyWith(isLoggedIn: true, officer: officer, loading: false);
+      return true;
     }
 
-    state = state.copyWith(
-      isLoggedIn: true,
-      officer: officer,
-      loading: false,
-    );
-    return true;
+    try {
+      final d2touch = await ref.read(d2TouchInstanceProvider.future);
+      final d2AuthRepository = D2TouchAuthRepository(d2touch);
+      final officer = await d2AuthRepository.login(username: username, password: password);
+      if (officer == null) {
+        state = state.copyWith(loading: false, error: 'Incorrect username or password.');
+        return false;
+      }
+      state = state.copyWith(isLoggedIn: true, officer: officer, loading: false);
+      return true;
+    } catch (e) {
+      state = state.copyWith(loading: false, error: e.toString());
+      return false;
+    }
   }
 
   void selectPointOfEntry(PointOfEntry poe) {
