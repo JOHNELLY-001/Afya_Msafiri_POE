@@ -42,7 +42,7 @@ class _PointOfEntryScreenState extends ConsumerState<PointOfEntryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Text('Confirm duty station', style: Theme.of(context).textTheme.headlineMedium),
+                child: Text('Select assigned duty station', style: Theme.of(context).textTheme.headlineMedium),
                 // const SizedBox(height: AppSpacing.sm),
                 // Text(
                 //   'Select the point of entry where you are currently assigned.',

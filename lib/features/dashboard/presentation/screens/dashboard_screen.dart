@@ -31,8 +31,8 @@ class DashboardScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Good morning', style: Theme.of(context).textTheme.bodyMedium),
-                    const SizedBox(height: 4),
+                    // Text('Good morning', style: Theme.of(context).textTheme.bodyMedium),
+                    // const SizedBox(height: 4),
                     Text(session.officer?.name ?? '—', style: Theme.of(context).textTheme.headlineMedium),
                     const SizedBox(height: 4),
                     Text(session.officer?.role ?? '', style: Theme.of(context).textTheme.bodyMedium),

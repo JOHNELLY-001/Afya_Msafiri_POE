@@ -26,6 +26,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
+
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(
@@ -36,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 height: 96,
                 decoration: BoxDecoration(
                   color: AppTheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(50),
                 ),
                 child: const Icon(Icons.health_and_safety, color: Colors.white, size: 52),
               ),
