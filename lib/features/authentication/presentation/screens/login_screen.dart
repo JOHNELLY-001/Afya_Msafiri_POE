@@ -43,46 +43,52 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 48),
-              Text('Welcome back', style: Theme.of(context).textTheme.headlineLarge),
-              const SizedBox(height: 8),
-              Text('Sign in to AfyaMsafiri Manager', style: Theme.of(context).textTheme.bodyMedium),
-              const SizedBox(height: 40),
-              AppTextField(
-                controller: _usernameController,
-                label: 'Username',
-                hint: 'Enter your username',
-                prefixIcon: Icons.person_outline,
-              ),
-              const SizedBox(height: 16),
-              AppTextField(
-                controller: _passwordController,
-                label: 'Password',
-                hint: 'Enter your password',
-                prefixIcon: Icons.lock_outline,
-                obscureText: true,
-              ),
-              if (session.error != null) ...[
-                const SizedBox(height: 12),
-                Text(session.error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13)),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  child: Icon(Icons.health_and_safety, color: Colors.white, size: 32),
+                ),
+                const SizedBox(height: 10),
+                Text('AFYAMSAFIRI MANAGER', style: Theme.of(context).textTheme.headlineMedium),
+                const SizedBox(height: 60),
+                Text('Sign in to AfyaMsafiri Manager', style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 10),
+                AppTextField(
+                  controller: _usernameController,
+                  label: 'Username',
+                  hint: 'Enter your username',
+                  prefixIcon: Icons.person_outline,
+                ),
+                const SizedBox(height: 16),
+                AppTextField(
+                  controller: _passwordController,
+                  label: 'Password',
+                  hint: 'Enter your password',
+                  prefixIcon: Icons.lock_outline,
+                  obscureText: true,
+                ),
+                if (session.error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(session.error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13)),
+                ],
+                const SizedBox(height: 28),
+                AppButton(
+                  label: 'Sign In',
+                  icon: Icons.login,
+                  loading: session.loading,
+                  onPressed: _login,
+                ),
+                const SizedBox(height: 24),
+                Center(
+                  child: Text('Authorized personnel only', style: Theme.of(context).textTheme.labelMedium),
+                ),
               ],
-              const SizedBox(height: 28),
-              AppButton(
-                label: 'Sign In',
-                icon: Icons.login,
-                loading: session.loading,
-                onPressed: _login,
-              ),
-              const SizedBox(height: 24),
-              Center(
-                child: Text('Authorized personnel only', style: Theme.of(context).textTheme.labelMedium),
-              ),
-            ],
+            ),
           ),
         ),
       ),

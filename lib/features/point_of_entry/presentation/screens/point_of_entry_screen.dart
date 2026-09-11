@@ -34,18 +34,20 @@ class _PointOfEntryScreenState extends ConsumerState<PointOfEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Point of Entry'), automaticallyImplyLeading: false),
+      appBar: AppBar(title: const Text('POINT OF ENTRY'), automaticallyImplyLeading: false),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Confirm duty station', style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                'Select the point of entry where you are currently assigned.',
-                style: Theme.of(context).textTheme.bodyMedium,
+              Center(
+                child: Text('Confirm duty station', style: Theme.of(context).textTheme.headlineMedium),
+                // const SizedBox(height: AppSpacing.sm),
+                // Text(
+                //   'Select the point of entry where you are currently assigned.',
+                //   style: Theme.of(context).textTheme.bodyMedium,
+                // ),
               ),
               const SizedBox(height: AppSpacing.lg),
               Expanded(
