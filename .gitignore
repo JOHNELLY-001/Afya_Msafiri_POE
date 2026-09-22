@@ -16,6 +16,9 @@ migrate_working_dir/
 **/errorlogs.txt
 lib/errorlogs.txt
 
+# Local setup notes (machine-specific, not for the repo)
+SETUP_GUIDE.md
+
 # IntelliJ related
 *.iml
 *.ipr
