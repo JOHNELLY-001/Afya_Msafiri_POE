@@ -16,7 +16,7 @@ Officers use this app to:
 4. See an automatic **risk assessment** (Low / Elevated / High) based on countries visited
 5. Record an **entry decision** — Cleared, Referred for further screening, or Quarantined — with officer notes
 6. Continue operating **offline**, with decisions queued locally and synced automatically once connectivity returns
-7. Review screening history, flagged/high-risk travellers, and (for supervisors) basic operational summaries
+7. Review past screenings on a dedicated read-only **history record page**, and inspect queued/failed items in the **Sync Center** with diagnostics
 
 The core operational loop:
 
@@ -29,16 +29,17 @@ Sign In → Select POE → Scan/Search Traveller → Traveller Record
 
 ## Tech Stack
 
-| Concern | Package |
+| Concern | Package / approach |
 |---|---|
 | State management | `flutter_riverpod` |
-| Navigation | `go_router` |
-| DHIS2/AfyaMsafiri integration | `d2_touch` (UDSM DHIS2 Lab Flutter SDK) |
-| Local offline storage (app-side decision queue) | `drift` + `sqlite3_flutter_libs` |
+| Navigation | `go_router` (single cached instance + auth/duty-station guards) |
+| Backend reads (PoE stations, bookings, risk countries, traveller lookup) | Mediator REST API via `dio` (`core/network/mediator_client.dart`) |
+| Decision submission | `ApiDecisionRepository` — **no server endpoint yet**, decisions stay queued (see Roadmap) |
+| DHIS2 SDK | `d2_touch` (warms up at launch; auth path reserved for a real endpoint) |
+| Local offline storage (decision queue + PoE cache) | `drift` + `sqlite3_flutter_libs`, `shared_preferences` |
 | QR scanning | `mobile_scanner` |
 | Connectivity detection | `connectivity_plus` |
-| Networking (mock/legacy paths) | `dio` |
-| Secure token storage | `flutter_secure_storage` |
+| Secure token storage | `flutter_secure_storage` (declared, to be wired with real login) |
 
 ---
 
@@ -59,9 +60,8 @@ lib/
     ├── traveller/           # Traveller record, travel history, screening
     ├── risk_assessment/     # Risk logic + screens
     ├── decisions/           # Entry decision, confirmation, recorded
-    ├── synchronization/     # Offline queue, sync center, diagnostics
-    ├── history/             # Scan history, flagged travellers
-    └── supervisor/          # Minimal supervisor dashboard
+├── synchronization/     # Offline queue, sync center, diagnostics
+└── history/             # Screening history list + read-only record page
 ```
 
 ### Repository pattern & the mock ↔ real API switch
@@ -69,15 +69,18 @@ lib/
 Every feature depends on a **repository interface** (e.g. `TravellerRepository`), never on a concrete implementation. Two implementations exist side by side:
 
 - A **mock** implementation, used for UI development without a backend
-- A **`d2_touch`-backed** implementation, used against the real DHIS2/AfyaMsafiri instance
+- A **mediator-backed** implementation (`Api*` repositories), used against the live AfyaMsafiri mediator
 
-Switching between them is a single flag in `lib/app/config.dart`:
+Switching between them are two flags in `lib/app/config.dart`:
 
 ```dart
 class AppConfig {
-  static const bool useMockData = true; // false = real DHIS2 backend
+  static const bool useMockData = true; // false = live mediator repos
+  static const bool bypassAuth = true; // true = skip login (no auth endpoint yet)
 }
 ```
+
+PoE stations, QR validation and flagged-country counts always use the live mediator, independent of `useMockData`. `d2_touch` initializes at launch so the auth path is ready once a real login endpoint exists.
 
 Screens, providers, and navigation are identical either way — only the repository implementation changes.
 
@@ -106,8 +109,8 @@ flutter run
 
 ### Configuration
 
-- `lib/app/config.dart` — toggle `useMockData` (mock vs. real backend)
-- `lib/app/dhis2_config.dart` — set the DHIS2/AfyaMsafiri base URL
+- `lib/app/config.dart` — toggle `useMockData` (mock vs. live mediator repos) and `bypassAuth` (skip login until an auth endpoint exists)
+- `lib/app/dhis2_config.dart` — DHIS2 settings reserved for the future auth path (current reads go through the mediator, not DHIS2 directly)
 
 ---
 
@@ -136,24 +139,26 @@ Then remove those two dev dependencies again and run `flutter pub get` before bu
 |---|---|---|
 | 0 | Foundation (theme, routing, session state) | ✅ Done |
 | 1 | Scan flow (QR, manual entry, error states) | ✅ Done |
-| 2 | Traveller record (mock data) | ✅ Done |
-| 3 | Risk assessment logic | ✅ Done |
+| 2 | Traveller record (mock + live mediator) | ✅ Done |
+| 3 | Risk assessment (Low / Elevated / High) | ✅ Done |
 | 4 | Entry decision & confirmation | ✅ Done |
-| 5 | Offline queue & auto-sync | ✅ Done |
-| 6 | History & supervisor oversight | ✅ Done |
-| 7 | Automated tests (risk & sync logic) | ⏳ Pending |
-| 8 | Real DHIS2 integration via `d2_touch` | 🔨 In progress (auth working; traveller/risk/decision modules pending) |
+| 5 | Offline queue & auto-sync | ✅ Done (drains once a decision endpoint exists) |
+| 6 | History record page, Sync Center, dashboard | ✅ Done |
+| 7 | Real login + assigned PoEs (needs auth endpoint) | ⏳ Blocked on backend |
+| 8 | Decision push endpoint (needs backend) | ⏳ Blocked on backend |
+| 9 | Supervisor oversight & reporting | ⏳ Deferred |
+| 10 | Automated tests (risk & sync logic) | ⏳ Pending |
 
 ---
 
 ## Roadmap
 
-- [ ] Map authenticated DHIS2 `User` → application `Officer` (real name, role, assigned POE)
-- [ ] Implement traveller lookup via `d2_touch` tracked entity instances
-- [ ] Implement risk-country list via DHIS2 metadata (option set)
-- [ ] Implement decision submission via `d2_touch` tracker/event functionality
+- [ ] Mediator `POST /auth/login` → `MediatorAuthRepository` (secure token storage, retire `bypassAuth`)
+- [ ] Filter duty-station picker to officer-assigned PoEs from the login response
+- [ ] Mediator decision submission endpoint → `ApiDecisionRepository.submitDecision` (idempotent per booking ref)
+- [ ] 401 handling during background sync (re-login prompt, record preserved)
 - [ ] Unit tests for risk-matching and sync/retry logic
-- [ ] Token-expiry handling during background sync
+- [ ] Supervisor reporting scope (deferred — see Project Status)
 
 ---
 
