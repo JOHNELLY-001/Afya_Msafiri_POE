@@ -1,0 +1,75 @@
+Here is a comprehensive design system manual written in English, structured specifically as a prompt/guide for an AI coding assistant to implement this design system in a Flutter application.
+
+---
+
+AI Design System Guide: AfyaMsafiri Mobile App (Flutter)
+
+Instruction to AI: You are an expert Flutter developer. You must strictly adhere to the following design system specifications when generating UI code, widgets, and themes for the AfyaMsafiri mobile application. Do not use default Material or Cupertino styling unless it aligns with the tokens below.
+
+1. Color Palette
+
+Implement these exact hex codes as static constants or within the ThemeData color scheme.
+
+· Primary Blue: #2563eb (Use for core branding, primary CTAs, active icons)
+· Deep Slate: #0f172a (Use for dark backgrounds, primary text, secondary buttons)
+· Success Green: #22c55e (Use for success states, confirmations, completed badges)
+· Urgent Red: #ef4444 (Use for errors, warnings, urgent badges)
+· Light Accent: #f1f5f9 (Use for subtle backgrounds, hover states)
+· Surface Gray: #f2f2f2 (Use for main scaffold backgrounds or elevated surfaces)
+
+2. Typography
+
+Use the Inter font family across the entire application. Apply the following text styles:
+
+· Heading 1: Inter Bold, 24px
+  · Usage: Main screen titles (e.g., "Create Account")
+· Body: Inter Regular, 15px
+  · Usage: Standard paragraph text, descriptions. (Note: This is also the base font size).
+· Input Label: Inter SemiBold, 13px, 0.65 letter spacing
+  · Usage: Form field labels (e.g., "FULL NAME *"). Usually uppercase.
+· Caption: Inter Regular, 11px
+  · Usage: Helper text, disclaimers, small print (e.g., "Your information is securely processed...")
+
+3. Layout, Spacing & Shapes (Design Tokens)
+
+Use these exact values for padding, margins, border radii, and elevation.
+
+· Global Spacing (spacing-md): 24.0 (Use for global container padding and general layout spacing)
+· Base Font Size (font-size-base): 15.0
+· Corner Radii:
+  · Extra Large (radius-xl): 28.0 (Use for main form containers, bottom sheets)
+  · Large (radius-lg): 20.0 (Use for status cards, information cards)
+  · Primary Buttons: 18.0
+  · Secondary Buttons: 12.0
+  · Outline Buttons: 8.0
+· Elevation / Shadows (shadow-card): Use a BoxShadow with offset: Offset(0, 4), blurRadius: 24, and color: Colors.black.withOpacity(0.04).
+
+4. UI Components
+
+Buttons
+
+· Primary Action: Background: Primary Blue (#2563eb), Text: White, Border Radius: 18px.
+· Secondary Action: Background: Deep Slate (#0f172a), Text: White, Border Radius: 12px.
+· Outline/View Status: Background: White, Border: Light gray, Text: Primary Blue or Deep Slate, Border Radius: 8px.
+
+Input Fields
+
+· Style: Filled with a very light color (like Light Accent), no harsh borders, Border Radius: 12px to 16px.
+· Icons: Include subtle prefix icons (e.g., an envelope for email) in a muted gray color.
+· Labels: Follow the "Input Label" typography rules above.
+
+Status Badges
+
+· Confirmed / Completed: Light green background, Success Green text, pill shape.
+· Urgent: Light red background, Urgent Red text, pill shape.
+
+Global Elements (Bottom Navigation)
+
+· Implement a floating or elevated bottom navigation bar with rounded corners (approx. 20px-28px radius).
+· Icons: Home, Bookings, History, Profile.
+· Active state: Primary Blue icon and text.
+· Inactive state: Muted Gray icon and text.
+
+Icons
+
+Use outlined or slightly rounded icons (e.g., Lucide, Phosphor, or Material Symbols Outlined). Do not use sharp or overly heavy filled icons, except for warning symbols (which should use Urgent Red #ef4444).
