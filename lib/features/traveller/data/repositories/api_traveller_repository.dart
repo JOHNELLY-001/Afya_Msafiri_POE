@@ -1,25 +1,77 @@
+import 'package:dio/dio.dart';
+
 import '../../domain/repositories/traveller_repository.dart';
 import '../models/traveller.dart';
+import '../../../../core/network/mediator_client.dart';
+import '../../../scanning/data/models/scan_result.dart';
 
-/// Real DHIS2/AfyaMsafiri implementation.
+/// Live mediator implementation.
 ///
-/// TODO (Step 8 — API integration):
-/// 1. Inject a Dio client (constructor parameter).
-/// 2. Call the DHIS2 endpoint that looks up a booking by reference.
-/// 3. Parse the response into Traveller.fromJson(...).
-/// 4. Handle errors (404 = not found, timeout, auth expiry) and rethrow
-///    as domain-specific exceptions the UI can show messages for.
-///
-/// Nothing outside this file needs to change to activate it — flip
-/// AppConfig.useMockData to false once this class is implemented.
+/// Tries the three booking resources in order — arrival, yellowFever,
+/// cardReplacement — because a QR `bookingID` can belong to any of them.
+/// The mediator answers 400 `"... could not be found"` for unknown ids;
+/// that is mapped to [MediatorNotFoundException] by [mediatorBody].
 class ApiTravellerRepository implements TravellerRepository {
-  const ApiTravellerRepository();
+  ApiTravellerRepository(this._dio);
+  final Dio _dio;
+
+  static const _paths = [
+    '/arrivalBooking',
+    '/yellowFeverBooking',
+    '/cardReplacementBooking',
+  ];
 
   @override
   Future<Traveller> fetchByBookingReference(String bookingReference) async {
-    throw UnimplementedError(
-      'ApiTravellerRepository is not implemented yet. '
-          'Set AppConfig.useMockData = true, or implement this method first.',
+    final id = bookingReference.trim();
+    MediatorNotFoundException? notFound;
+    for (final base in _paths) {
+      try {
+        final response = await _dio.get('$base/$id');
+        final body = mediatorBody(response);
+        if (body is! Map<String, dynamic>) {
+          throw Exception('Unexpected booking response shape');
+        }
+        return Traveller.fromMediatorJson(
+          body,
+          fallbackBookingReference: id,
+        );
+      } on MediatorNotFoundException catch (e) {
+        notFound = e;
+        continue;
+      }
+    }
+    throw notFound ??
+        const MediatorNotFoundException('Booking could not be found');
+  }
+
+  /// Lightweight existence check used by the scanner: true when any of
+  /// the three booking resources returns 2xx for [bookingId].
+  Future<bool> existsBooking(String bookingId) async {
+    try {
+      await fetchByBookingReference(bookingId);
+      return true;
+    } on MediatorNotFoundException {
+      return false;
+    }
+  }
+
+  /// Fetch with QR payload context so arrival date / PoE uid survive
+  /// even when the booking body omits them.
+  Future<Traveller> fetchWithPayload(ScanPayload payload) async {
+    try {
+      final t = await fetchByBookingReference(payload.bookingId);
+      return t;
+    } on MediatorNotFoundException {
+      rethrow;
+    } catch (_) {
+      // Fall through to payload-only traveller below.
+    }
+    return Traveller.fromMediatorJson(
+      const {},
+      fallbackBookingReference: payload.bookingId,
+      fallbackArrival: payload.arrivalDate,
+      fallbackPoeUid: payload.portOfEntryUid,
     );
   }
 }

@@ -31,7 +31,10 @@ class OfflineBanner extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 8),
         child: Row(
           children: [
-            Icon(isOnline ? Icons.sync : Icons.cloud_off, size: 16, color: color),
+            Icon(
+                isOnline ? Icons.sync_outlined : Icons.cloud_off_outlined,
+                size: 16,
+                color: color),
             const SizedBox(width: AppSpacing.sm),
             Expanded(child: Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color))),
             Icon(Icons.chevron_right, size: 16, color: color),

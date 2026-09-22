@@ -5,6 +5,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../../app/routes.dart';
 import '../../../../app/design_tokens.dart';
+import '../../../../core/widgets/afya_app_bar.dart';
 import '../../../../shared/providers/scan_provider.dart';
 import '../../data/models/scan_result.dart';
 import '../widgets/scanner_frame_overlay.dart';
@@ -44,21 +45,27 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
     _routeFromResult(result);
   }
 
-  void _routeFromResult(ScanResult result) {
+  Future<void> _routeFromResult(ScanResult result) async {
     switch (result.status) {
       case ScanStatus.valid:
-        context.push(AppRoutes.scanSuccess, extra: result.bookingReference);
+        await context.push(AppRoutes.scanSuccess,
+            extra: result.bookingReference);
         break;
       case ScanStatus.invalid:
-        context.push(AppRoutes.invalidQr);
+        await context.push(AppRoutes.invalidQr);
         break;
       case ScanStatus.expired:
-        context.push(AppRoutes.invalidQr, extra: 'expired');
+        await context.push(AppRoutes.invalidQr, extra: 'expired');
         break;
       case ScanStatus.alreadyProcessed:
-        context.push(AppRoutes.alreadyProcessed, extra: result.bookingReference);
+        await context.push(AppRoutes.alreadyProcessed,
+            extra: result.bookingReference);
         break;
     }
+    // Returning from any result screen re-arms the scanner instead of
+    // leaving a frozen black preview (previously _processing stayed true).
+    if (!mounted) return;
+    await _resetForNextScan();
   }
 
   Future<void> _resetForNextScan() async {
@@ -70,17 +77,26 @@ class _QrScannerScreenState extends ConsumerState<QrScannerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-        title: const Text('Scan Traveller QR'),
+      appBar: AfyaAppBar(
+        title: 'Scan Traveller QR',
+        subtitle: 'Align the QR within the frame',
+        dark: true,
+        showSyncStatus: false,
         actions: [
           IconButton(
-            icon: Icon(_torchOn ? Icons.flash_on : Icons.flash_off),
+            tooltip: 'Torch',
+            icon: Icon(_torchOn
+                ? Icons.flash_on_outlined
+                : Icons.flash_off_outlined),
             onPressed: () {
               _controller.toggleTorch();
               setState(() => _torchOn = !_torchOn);
             },
+          ),
+          IconButton(
+            tooltip: 'Manual entry',
+            icon: const Icon(Icons.keyboard_outlined),
+            onPressed: () => context.push(AppRoutes.manualEntry),
           ),
         ],
       ),

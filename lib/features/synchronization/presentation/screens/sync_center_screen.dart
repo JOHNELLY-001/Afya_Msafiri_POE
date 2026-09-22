@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../app/design_tokens.dart';
+import '../../../../app/routes.dart';
+import '../../../../app/theme.dart';
+import '../../../../core/widgets/afya_app_bar.dart';
+import '../../../../core/widgets/page_hero.dart';
 import '../../../../shared/providers/connectivity_provider.dart';
 import '../../../../shared/providers/sync_provider.dart';
 import '../../data/local/app_database.dart';
@@ -16,11 +21,14 @@ class SyncCenterScreen extends ConsumerWidget {
     final pendingAsync = ref.watch(syncRepositoryProvider).watchPending();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Data Synchronization'),
+      appBar: AfyaAppBar(
+        title: 'Data Synchronization',
+        subtitle: isOnline ? 'Online • sync ready' : 'Offline • queued safely',
+        showSyncStatus: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            tooltip: 'Retry sync',
+            icon: const Icon(Icons.refresh_outlined),
             onPressed: isOnline
                 ? () async {
               final (succeeded, failed) = await ref.read(syncRepositoryProvider).syncAll();
@@ -31,6 +39,11 @@ class SyncCenterScreen extends ConsumerWidget {
               }
             }
                 : null,
+          ),
+          IconButton(
+            tooltip: 'Diagnostics',
+            icon: const Icon(Icons.monitor_heart_outlined),
+            onPressed: () => context.push(AppRoutes.syncDiagnostics),
           ),
         ],
       ),
@@ -43,21 +56,49 @@ class SyncCenterScreen extends ConsumerWidget {
             children: [
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(AppSpacing.md),
-                color: (isOnline ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.error)
-                    .withValues(alpha: 0.08),
-                child: Text(
-                  isOnline
-                      ? (pending.isEmpty ? 'Up to date' : '${pending.length} record(s) pending')
-                      : 'Offline — sync will resume automatically',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                margin: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 0),
+                child: PageHero(
+                  icon: pending.isEmpty
+                      ? Icons.cloud_done_outlined
+                      : Icons.cloud_upload_outlined,
+                  title: isOnline
+                      ? (pending.isEmpty
+                          ? 'Up to date'
+                          : '${pending.length} record(s) pending')
+                      : 'Offline — will resume',
+                  subtitle: isOnline
+                      ? 'Pull to sync or tap refresh above.'
+                      : 'Records are safe on device and sync automatically.',
+                  from: AppTheme.primary,
+                  to: AppTheme.secondary,
                 ),
               ),
               Expanded(
                 child: pending.isEmpty
                     ? Center(
-                  child: Text('No pending synchronization', style: Theme.of(context).textTheme.bodyMedium),
-                )
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.check_circle_outline,
+                                size: 48,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outline),
+                            const SizedBox(height: AppSpacing.sm),
+                            Text('No pending synchronization',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium),
+                            const SizedBox(height: 4),
+                            Text(
+                                'Completed screenings will queue here when offline.',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium),
+                          ],
+                        ),
+                      )
                     : ListView.separated(
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   itemCount: pending.length,
@@ -79,12 +120,25 @@ class SyncCenterScreen extends ConsumerWidget {
               ),
               if (pending.any((p) => p.syncError != null))
                 Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
+                  padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
                   child: OutlinedButton(
                     onPressed: () => ref.read(syncRepositoryProvider).retryFailed(),
                     child: const Text('Retry Failed Items'),
                   ),
                 ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    pending.any((p) => p.syncError != null) ? 0 : AppSpacing.sm,
+                    AppSpacing.md,
+                    AppSpacing.md),
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push(AppRoutes.syncDiagnostics),
+                  icon: const Icon(Icons.monitor_heart_outlined),
+                  label: const Text('View Sync Diagnostics'),
+                ),
+              ),
             ],
           );
         },

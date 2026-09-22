@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/config.dart';
+import '../../core/network/mediator_client.dart';
 import '../../features/traveller/data/models/traveller.dart';
 import '../../features/traveller/data/repositories/api_traveller_repository.dart';
 import '../../features/traveller/data/repositories/mock_traveller_repository.dart';
@@ -13,11 +14,11 @@ final travellerRepositoryProvider = Provider<TravellerRepository>((ref) {
   if (AppConfig.useMockData) {
     return MockTravellerRepository();
   }
-  return const ApiTravellerRepository();
+  return ApiTravellerRepository(ref.watch(mediatorClientProvider));
 });
 
 final travellerByReferenceProvider =
-FutureProvider.family<Traveller, String>((ref, bookingReference) async {
+    FutureProvider.family<Traveller, String>((ref, bookingReference) async {
   final repository = ref.watch(travellerRepositoryProvider);
   return repository.fetchByBookingReference(bookingReference);
 });

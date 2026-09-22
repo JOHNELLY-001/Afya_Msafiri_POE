@@ -6,8 +6,10 @@ class MockDecisionRepository implements DecisionRepository {
   Future<Decision> submitDecision(Decision decision) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
-    // Step 5 will introduce real connectivity checks and offline queueing.
-    // For now this always "succeeds" as if synced immediately.
+    // Mock mode (AppConfig.useMockData = true): decisions "succeed"
+    // immediately as if synced. Live mode uses ApiDecisionRepository,
+    // which queues to the on-device Drift store for manual sync until a
+    // real server endpoint is configured (see its SERVER CONFIG).
     return Decision(
       bookingReference: decision.bookingReference,
       type: decision.type,
