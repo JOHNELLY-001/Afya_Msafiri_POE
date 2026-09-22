@@ -33,6 +33,24 @@ class SyncRepository {
         .watch();
   }
 
+  /// Latest stored record for one booking reference (or null when absent).
+  /// Backs the standalone history-detail page.
+  Stream<QueuedDecision?> watchByBookingReference(String bookingReference) {
+    return (_db.select(_db.queuedDecisions)
+      ..where((t) => t.bookingReference.equals(bookingReference))
+      ..orderBy([(t) => OrderingTerm.desc(t.timestamp)])
+      ..limit(1))
+        .watchSingleOrNull();
+  }
+
+  /// Full screening history (synced + pending), newest first.
+  /// Backs the History bottom-nav tab.
+  Stream<List<QueuedDecision>> watchAll() {
+    return (_db.select(_db.queuedDecisions)
+      ..orderBy([(t) => OrderingTerm.desc(t.timestamp)]))
+        .watch();
+  }
+
   Stream<int> watchPendingCount() {
     return watchPending().map((rows) => rows.length);
   }
@@ -69,6 +87,11 @@ class SyncRepository {
         );
         succeeded++;
       } catch (e) {
+        // NOTE: EndpointNotConfiguredException (ApiDecisionRepository SERVER
+        // CONFIG) means "no server endpoint yet" — the record stays queued
+        // for MANUAL sync from the Sync Center. Anything else is a genuine
+        // network/server failure. Both surface in the Sync Center's
+        // per-item "Failed:" line via syncError below.
         await (_db.update(_db.queuedDecisions)..where((t) => t.id.equals(row.id))).write(
           QueuedDecisionsCompanion(syncError: Value(e.toString())),
         );
