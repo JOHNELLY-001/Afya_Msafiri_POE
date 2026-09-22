@@ -7,6 +7,11 @@ class AppTextField extends StatelessWidget {
   final IconData? prefixIcon;
   final bool obscureText;
   final TextInputType keyboardType;
+  final String? errorText;
+  final ValueChanged<String>? onChanged;
+  final TextCapitalization textCapitalization;
+  final ValueChanged<String>? onSubmitted;
+  final TextInputAction? textInputAction;
 
   const AppTextField({
     super.key,
@@ -16,20 +21,31 @@ class AppTextField extends StatelessWidget {
     this.prefixIcon,
     this.obscureText = false,
     this.keyboardType = TextInputType.text,
+    this.errorText,
+    this.onChanged,
+    this.textCapitalization = TextCapitalization.none,
+    this.onSubmitted,
+    this.textInputAction,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Guide inputs: Light Accent fill + 12–16 radius + muted-gray prefix
+    // icon come from Theme.inputDecorationTheme; labels follow the
+    // Input Label style (13 SemiBold, usually uppercase).
     return TextField(
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
+      onChanged: onChanged,
+      textCapitalization: textCapitalization,
+      onSubmitted: onSubmitted,
+      textInputAction: textInputAction,
       decoration: InputDecoration(
-        labelText: label,
+        labelText: label.toUpperCase(),
         hintText: hint,
-        prefixIcon: prefixIcon == null
-            ? null
-            : Icon(prefixIcon),
+        errorText: errorText,
+        prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
       ),
     );
   }
