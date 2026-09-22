@@ -12,6 +12,10 @@
 .swiftpm/
 migrate_working_dir/
 
+# Local debug scratch (terminal output pasted during development)
+**/errorlogs.txt
+lib/errorlogs.txt
+
 # IntelliJ related
 *.iml
 *.ipr
